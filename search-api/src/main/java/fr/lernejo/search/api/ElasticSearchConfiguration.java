@@ -21,7 +21,7 @@ public class ElasticSearchConfiguration {
     @Bean
     public RestHighLevelClient restHighLevelClient(@Value("${elasticsearch.host:localhost}") String host, @Value("${elasticsearch.port:9200}") int port, @Value("${elasticsearch.username:elastic}") String username, @Value("${elasticsearch.password:admin}") String password) {
 
-        RestClientBuilder restClientBuilder = RestClient.builder(new HttpHost(host, port, "http"));
+        RestClientBuilder restClientBuilder = RestClient.builder(new HttpHost(host, port));
         CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
         restClientBuilder.setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
