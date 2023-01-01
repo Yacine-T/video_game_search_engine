@@ -14,3 +14,4 @@ class HelloController {
     record HelloMessage(String message) {
     }
 }
+

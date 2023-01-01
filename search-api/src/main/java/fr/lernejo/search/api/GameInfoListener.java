@@ -56,3 +56,4 @@ public class GameInfoListener {
         }
     }
 }
+//http://localhost:9200/games/_doc/1
