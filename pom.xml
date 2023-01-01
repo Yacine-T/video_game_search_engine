@@ -24,7 +24,6 @@
 
         <!-- Dependencies -->
         <spring-boot.version>2.6.2</spring-boot.version>
-        <elasticsearch-client.version>7.17.8</elasticsearch-client.version>
 
         <!-- Test dependencies -->
         <junit.version>5.8.2</junit.version>
@@ -45,7 +44,7 @@
                 <artifactId>spring-boot-starter-web</artifactId>
                 <version>${spring-boot.version}</version>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-amqp</artifactId>
                 <version>${spring-boot.version}</version>
@@ -66,11 +65,17 @@
                 <version>${spring-boot.version}</version>
                 <scope>test</scope>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-high-level-client -->
+
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>elasticsearch-rest-high-level-client</artifactId>
-                <version>${elasticsearch-client.version}</version>
+                <version>7.16.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.13.1</version>
             </dependency>
 
         </dependencies>

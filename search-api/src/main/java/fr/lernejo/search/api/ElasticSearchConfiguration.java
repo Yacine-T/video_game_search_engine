@@ -22,14 +22,9 @@ public class ElasticSearchConfiguration {
     public RestHighLevelClient restHighLevelClient(@Value("${elasticsearch.host:localhost}") String host, @Value("${elasticsearch.port:9200}") int port, @Value("${elasticsearch.username:elastic}") String username, @Value("${elasticsearch.password:admin}") String password) {
 
         RestClientBuilder restClientBuilder = RestClient.builder(new HttpHost(host, port));
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-        restClientBuilder.setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-            @Override
-            public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpAsyncClientBuilder) {
-                return httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider).setDefaultIOReactorConfig(IOReactorConfig.custom().setIoThreadCount(1).build());
-            }
-        });
+        restClientBuilder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
         return new RestHighLevelClient(restClientBuilder);
     }
 }
