@@ -1,52 +1,36 @@
 package fr.lernejo.fileinjector;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import fr.lernejo.fileinjector.recorders.Game_info;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.InvalidPathException;
+
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
 @SpringBootApplication
 public class Launcher {
 
-    public static void main(String[] args) throws IOException, InvalidPathException {
-        if (args.length == 1) {
-            try (final AbstractApplicationContext springContext = new AnnotationConfigApplicationContext(Launcher.class);
-            ) {
-                SendingMessages( new ObjectMapper().findAndRegisterModules(), springContext, args[0]);
-            } catch (IOException err) {
-                throw new IOException(err);
+    public static void main(String[] args) {
+        try (AbstractApplicationContext springContext = new AnnotationConfigApplicationContext(Launcher.class)) {
+
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map[] games_map = objectMapper.readValue(Paths.get(args[0]).toFile(), Map[].class);
+                RabbitTemplate template = springContext.getBean(RabbitTemplate.class);
+                for (Map game : games_map) {
+                    template.setMessageConverter(new Jackson2JsonMessageConverter());
+                    template.convertAndSend("", "game_info", game, m -> {
+                        m.getMessageProperties().getHeaders().put("game_id", game.get("id"));
+                        return m;
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } else {
-            System.out.println("Argument missing : At least one for the path of the resource !!! ");
-        }
-    }
-
-    private static void SendingMessages(ObjectMapper mapper, AbstractApplicationContext springContext, String filePath) throws IOException, InvalidPathException {
-        RabbitTemplate rabbitTemplate = springContext.getBean(RabbitTemplate.class);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT).setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-        final Game_info[] games = mapper.readValue(Paths.get(filePath).toFile(), Game_info[].class);
-
-        for (Game_info game : games) {
-            String str_game = mapper.writeValueAsString(game);
-            rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
-            rabbitTemplate.convertAndSend("", "game_info", str_game, m -> {
-                m.getMessageProperties().getHeaders().put("game_id", game.id());
-                m.getMessageProperties().setContentType("appplication/json");
-                return m;
-            }); // sending message
         }
     }
 }
